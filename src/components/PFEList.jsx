@@ -87,21 +87,60 @@ export default function PFEList() {
 
   const [modalUrl, setModalUrl] = useState(null);
   const [modalTitle, setModalTitle] = useState('');
+  const [modalFallback, setModalFallback] = useState(false);
   const [query, setQuery] = useState('');
   const [sortAsc, setSortAsc] = useState(true);
 
   const openInModal = useCallback((url, title) => {
+    // Detect mobile / touch-like devices or narrow screens where iframe PDF often fails
+    const isTouch = typeof window !== 'undefined' && (
+      window.innerWidth <= 720 ||
+      (navigator.userAgent && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) ||
+      (window.matchMedia && window.matchMedia('(pointer:coarse)').matches)
+    );
+
+    if (isTouch) {
+      // Try to open directly in a new tab (more reliable on mobile)
+      try {
+        const opened = window.open(url, '_blank', 'noopener,noreferrer');
+        if (!opened) {
+          // Popup blocked: fall back to modal with an explicit open link
+          setModalUrl(url);
+          setModalTitle(title || 'PDF Viewer');
+          setModalFallback(true);
+          setIsFullscreen(false);
+          try { document.body.style.overflow = 'hidden'; document.documentElement.style.overflow = 'hidden'; } catch (e) {}
+        }
+      } catch (e) {
+        // On any error, fallback to modal
+        setModalUrl(url);
+        setModalTitle(title || 'PDF Viewer');
+        setModalFallback(true);
+        setIsFullscreen(false);
+        try { document.body.style.overflow = 'hidden'; document.documentElement.style.overflow = 'hidden'; } catch (e) {}
+      }
+      return;
+    }
+
+    // Desktop / large screens: open in modal with iframe
+    setModalFallback(false);
     setModalUrl(url);
     setModalTitle(title || 'PDF Viewer');
     setIsFullscreen(false);
-    // prevent background scroll
-    document.body.style.overflow = 'hidden';
+    try {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } catch (e) {}
   }, []);
 
   const closeModal = useCallback(() => {
     setModalUrl(null);
     setModalTitle('');
-    document.body.style.overflow = '';
+    setModalFallback(false);
+    try {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    } catch (e) {}
     // exit fullscreen if active
     try {
       if (document.fullscreenElement) {
@@ -232,8 +271,8 @@ export default function PFEList() {
 
       {/* Modal for PDF preview */}
       {modalUrl && (
-        <div className="pfe-modal" role="dialog" aria-modal="true" aria-label={modalTitle} onClick={(e) => { if (e.target.classList.contains('pfe-modal')) closeModal(); }}>
-          <div className="pfe-modal-content">
+        <div className="pfe-modal" role="dialog" aria-modal="true" aria-label={modalTitle} onClick={closeModal}>
+          <div className="pfe-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="pfe-modal-header">
               <div className="pfe-modal-title">{modalTitle}</div>
               <div className="pfe-header-actions">
@@ -243,7 +282,14 @@ export default function PFEList() {
               </div>
             </div>
             <div className="pfe-modal-body" ref={modalContentRef}>
-              <iframe src={modalUrl} title={modalTitle} className="pfe-pdf-frame" frameBorder="0" />
+              {modalFallback ? (
+                <div className="pfe-modal-fallback">
+                  <p>Impossible d'afficher le PDF dans la popup sur cet appareil. Ouvrez le PDF dans un nouvel onglet :</p>
+                  <a className="pfe-btn open" href={modalUrl} target="_blank" rel="noopener noreferrer">Ouvrir dans un nouvel onglet</a>
+                </div>
+              ) : (
+                <iframe src={modalUrl} title={modalTitle} className="pfe-pdf-frame" frameBorder="0" allowFullScreen allow="fullscreen" />
+              )}
             </div>
             <div className="pfe-modal-actions">
               <a className="pfe-btn download" href={modalUrl} download target="_blank" rel="noopener noreferrer">Télécharger</a>

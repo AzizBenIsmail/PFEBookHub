@@ -21,9 +21,10 @@
   gap: 1rem;
 }
 
-.ph-left, .ph-center, .ph-right { display:flex; align-items:center; }
+/* Make flex children allowed to shrink on very small screens */
+.ph-left, .ph-center, .ph-right { display:flex; align-items:center; min-width:0 }
 .ph-left { flex: 0 0 auto }
-.ph-center { flex: 1 1 480px; justify-content:center }
+.ph-center { flex: 1 1 auto; justify-content:center; min-width:0 }
 .ph-right { flex: 0 0 auto; gap: 0.75rem }
 
 .ph-brand { display:flex; align-items:center; gap:0.9rem }
@@ -36,7 +37,7 @@
 .ph-search { display:flex; align-items:center; width:100%; max-width:720px; background: var(--card-bg, rgba(255,255,255,0.02)); border-radius:10px; padding:4px; box-shadow: var(--shadow-sm); }
 .ph-search-btn { background:transparent; border:0; color:var(--muted); padding:6px 8px; display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:8px }
 .ph-search-btn svg { opacity:0.9 }
-.ph-search-input { flex:1; border:0; outline:none; padding:8px 10px; background:transparent; color:inherit; font-size:0.95rem }
+.ph-search-input { flex:1; border:0; outline:none; padding:8px 10px; background:transparent; color:inherit; font-size:0.95rem; min-width:0 }
 .ph-search-input::placeholder { color:var(--muted) }
 
 /* datetime & weather */
@@ -59,6 +60,7 @@
   .ph-datetime { display:none }
   .ph-weather-wrap { display:none }
   .ph-center { order:3; width:100%; padding:0.5rem 0 }
+  .ph-nav-inner { flex-wrap: wrap }
   .ph-left { flex: 0 0 auto }
   .ph-right { gap:0.4rem }
 }

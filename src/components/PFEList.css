@@ -229,3 +229,19 @@
   .pfe-pdf-frame { min-height: 50vh }
 }
 
+/* Ensure modal is usable on small screens */
+@media (max-width: 520px) {
+  .pfe-modal-content {
+    width: calc(100% - 1.5rem);
+    max-width: none;
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 10px;
+  }
+  .pfe-modal-body { min-height: 50vh }
+  .pfe-modal-actions { padding: 0.5rem }
+}
+
+.pfe-modal-fallback { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:1.25rem; text-align:center }
+.pfe-modal-fallback p { margin:0; color:var(--muted) }
+
