@@ -1,9 +1,15 @@
 .ph-navbar {
   width: 100%;
-  background: linear-gradient(90deg, rgba(99,102,241,0.08), rgba(99,102,241,0.02));
+  background: linear-gradient(to right, var(--nav-bg), var(--nav-bg)) padding-box,
+              linear-gradient(to right, var(--gradient-start), var(--gradient-end)) border-box;
   color: var(--nav-fg);
-  box-shadow: 0 4px 18px rgba(2,6,23,0.06);
-  backdrop-filter: blur(4px);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid transparent;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
 }
 .ph-nav-inner {
   max-width: 1100px;

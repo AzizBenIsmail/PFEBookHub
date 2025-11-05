@@ -38,11 +38,17 @@
 }
 
 /* Minimal page reset to make PFEList layout look cleaner */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
   background: var(--bg);
   color: var(--fg);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .App {
@@ -59,23 +65,39 @@ body {
   --nav-bg: #ffffff;
   --nav-fg: #0f172a;
   --overlay: rgba(2,6,23,0.6);
-  --btn-bg: #111827;
+  --btn-bg: #3b82f6;
   --btn-fg: #ffffff;
   --muted-border: #e5e7eb;
+  --accent: #3b82f6;
+  --accent-light: #60a5fa;
+  --accent-dark: #2563eb;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --gradient-start: #3b82f6;
+  --gradient-end: #8b5cf6;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
 }
 
 /* Dark theme overrides */
 [data-theme="dark"] {
-  --bg: #0b1020;
-  --fg: #e6eef8;
-  --card-bg: #071029;
+  --bg: #0f172a;
+  --fg: #f1f5f9;
+  --card-bg: #1e293b;
   --muted: #94a3b8;
-  --nav-bg: #071029;
-  --nav-fg: #e6eef8;
-  --overlay: rgba(2,6,23,0.7);
-  --btn-bg: #e6eef8;
-  --btn-fg: #071029;
-  --muted-border: #0f172a;
+  --nav-bg: rgba(15, 23, 42, 0.9);
+  --nav-fg: #f1f5f9;
+  --overlay: rgba(2,6,23,0.8);
+  --btn-bg: #3b82f6;
+  --btn-fg: #ffffff;
+  --muted-border: #334155;
+  --accent: #60a5fa;
+  --accent-light: #93c5fd;
+  --accent-dark: #3b82f6;
+  --gradient-start: #60a5fa;
+  --gradient-end: #a78bfa;
 }
 
 /* Smooth transitions between themes */
