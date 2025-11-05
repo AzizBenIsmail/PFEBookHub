@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import './PFEList.css';
 
 /**
@@ -93,6 +93,7 @@ export default function PFEList() {
   const openInModal = useCallback((url, title) => {
     setModalUrl(url);
     setModalTitle(title || 'PDF Viewer');
+    setIsFullscreen(false);
     // prevent background scroll
     document.body.style.overflow = 'hidden';
   }, []);
@@ -101,6 +102,36 @@ export default function PFEList() {
     setModalUrl(null);
     setModalTitle('');
     document.body.style.overflow = '';
+    // exit fullscreen if active
+    try {
+      if (document.fullscreenElement) {
+        document.exitFullscreen?.();
+      }
+    } catch (e) {}
+  }, []);
+
+  const modalContentRef = useRef(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (!modalContentRef.current) return;
+      if (!document.fullscreenElement) {
+        // request fullscreen on the modal content
+        const el = modalContentRef.current;
+        if (el.requestFullscreen) await el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+        setIsFullscreen(true);
+      } else {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+        setIsFullscreen(false);
+      }
+    } catch (e) {
+      // ignore
+    }
   }, []);
 
   // close on Escape
@@ -205,9 +236,13 @@ export default function PFEList() {
           <div className="pfe-modal-content">
             <div className="pfe-modal-header">
               <div className="pfe-modal-title">{modalTitle}</div>
-              <button className="pfe-modal-close" onClick={closeModal} aria-label="Fermer">✕</button>
+              <div className="pfe-header-actions">
+                <a className="pfe-modal-action-btn" href={modalUrl} target="_blank" rel="noopener noreferrer" title="Ouvrir dans un nouvel onglet" aria-label="Ouvrir dans un nouvel onglet">🔗</a>
+                <button className="pfe-modal-action-btn" onClick={toggleFullscreen} title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'} aria-label="Basculer plein écran">{isFullscreen ? '🞬' : '⤢'}</button>
+                <button className="pfe-modal-close" onClick={closeModal} aria-label="Fermer">✕</button>
+              </div>
             </div>
-            <div className="pfe-modal-body">
+            <div className="pfe-modal-body" ref={modalContentRef}>
               <iframe src={modalUrl} title={modalTitle} className="pfe-pdf-frame" frameBorder="0" />
             </div>
             <div className="pfe-modal-actions">
