@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import './PFEList.css';
 
 /**
@@ -9,6 +10,7 @@ import './PFEList.css';
  * 3) If both fail, show instructions to generate manifest using the included Node script.
  */
 export default function PFEList() {
+  const { t } = useTranslation();
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -192,35 +194,35 @@ export default function PFEList() {
       <div className="pfe-header">
         <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem'}}>
           <div>
-            <h2 className="pfe-title">PFE Books</h2>
-            <p className="pfe-sub">Tous les PDFs trouvés dans <code>/public/PFE</code></p>
+            <h2 className="pfe-title">{t('pfeTitle')}</h2>
+            <p className="pfe-sub">{t('pfeSub', { path: '/public/PFE' })}</p>
           </div>
           <div className="pfe-controls">
-            <input className="pfe-search" placeholder="Rechercher un PFE..." value={query} onChange={(e) => setQuery(e.target.value)} />
+            <input className="pfe-search" placeholder={t('searchPlaceholder')} value={query} onChange={(e) => setQuery(e.target.value)} />
             <button className="pfe-sort" onClick={() => setSortAsc(s => !s)} title="Trier">{sortAsc ? 'A→Z' : 'Z→A'}</button>
           </div>
         </div>
       </div>
 
-      {loading && <div className="pfe-loading">Chargement…</div>}
+  {loading && <div className="pfe-loading">{t('loading')}</div>}
 
       {error && (
         <div className="pfe-error">
           <p>{error}</p>
           <p>
-            Pour générer automatiquement le fichier manifest, exécutez :
+            {t('manifestHint')}
             <code>npm run generate:pfe-manifest</code>
           </p>
         </div>
       )}
 
       {!loading && files && files.length === 0 && !error && (
-        <div className="pfe-empty">Aucun fichier PDF trouvé dans <code>/public/PFE</code>.</div>
+        <div className="pfe-empty">{t('noFiles', { path: '/public/PFE' })}</div>
       )}
 
       <div className="pfe-meta">
-        <div>{files.length} fichier(s)</div>
-        {query && <div>Filtré par "{query}"</div>}
+        <div>{t('filesCount', { count: files.length })}</div>
+        {query && <div>{t('filteredBy', { query })}</div>}
       </div>
 
       <div className="pfe-grid">
@@ -253,11 +255,11 @@ export default function PFEList() {
                 </div>
               </div>
               <div className="pfe-card-actions">
-                <button className="pfe-btn open" onClick={() => openInModal(url, title)} aria-label={`Ouvrir ${title}`}>
-                  Ouvrir
+                <button className="pfe-btn open" onClick={() => openInModal(url, title)} aria-label={`${t('open')} ${title}`}>
+                  {t('open')}
                 </button>
-                <a className="pfe-btn download" href={url} download target="_blank" rel="noopener noreferrer" aria-label={`Télécharger ${title}`}>
-                  Télécharger
+                <a className="pfe-btn download" href={url} download target="_blank" rel="noopener noreferrer" aria-label={`${t('download')} ${title}`}>
+                  {t('download')}
                 </a>
               </div>
             </div>
@@ -276,9 +278,9 @@ export default function PFEList() {
             <div className="pfe-modal-header">
               <div className="pfe-modal-title">{modalTitle}</div>
               <div className="pfe-header-actions">
-                <a className="pfe-modal-action-btn" href={modalUrl} target="_blank" rel="noopener noreferrer" title="Ouvrir dans un nouvel onglet" aria-label="Ouvrir dans un nouvel onglet">🔗</a>
-                <button className="pfe-modal-action-btn" onClick={toggleFullscreen} title={isFullscreen ? 'Quitter le plein écran' : 'Plein écran'} aria-label="Basculer plein écran">{isFullscreen ? '🞬' : '⤢'}</button>
-                <button className="pfe-modal-close" onClick={closeModal} aria-label="Fermer">✕</button>
+                <a className="pfe-modal-action-btn" href={modalUrl} target="_blank" rel="noopener noreferrer" title={t('openNewTab')} aria-label={t('openNewTab')}>🔗</a>
+                <button className="pfe-modal-action-btn" onClick={toggleFullscreen} title={isFullscreen ? t('close') : 'Fullscreen'} aria-label="Basculer plein écran">{isFullscreen ? '🞬' : '⤢'}</button>
+                <button className="pfe-modal-close" onClick={closeModal} aria-label={t('close')}>✕</button>
               </div>
             </div>
             <div className="pfe-modal-body" ref={modalContentRef}>

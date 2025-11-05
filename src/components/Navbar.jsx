@@ -1,15 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Weather from './Weather';
 import './Navbar.css';
+import { useTranslation } from 'react-i18next';
 
 export default function Navbar({ theme, toggleTheme }) {
+  const { t, i18n } = useTranslation();
   const [dateTime, setDateTime] = useState(new Date());
   const [query, setQuery] = useState('');
+  const [lang, setLang] = useState(localStorage.getItem('lang') || i18n.language || 'fr');
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef(null);
 
   useEffect(() => {
-    // Mettre à jour chaque seconde
     const timer = setInterval(() => setDateTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    setLang(lng);
+    try { localStorage.setItem('lang', lng); } catch (e) {}
+  };
+
+  const toggleProfile = () => setProfileOpen(p => !p);
+  const closeProfile = () => setProfileOpen(false);
+
+  useEffect(() => {
+    function onDocClick(e) {
+      const clickedInsideProfile = profileRef.current && profileRef.current.contains(e.target);
+      const clickedInsideLang = langRef.current && langRef.current.contains(e.target);
+      if (!clickedInsideProfile) setProfileOpen(false);
+      if (!clickedInsideLang) setLangOpen(false);
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') setProfileOpen(false);
+    }
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
   }, []);
 
   const formatDate = (date) => {
@@ -30,7 +63,6 @@ export default function Navbar({ theme, toggleTheme }) {
 
   const onSearchSubmit = (e) => {
     e.preventDefault();
-    // For now just log; parent can wire search via props later
     console.log('Recherche:', query);
   };
 
@@ -42,7 +74,7 @@ export default function Navbar({ theme, toggleTheme }) {
             <span className="ph-logo" aria-hidden></span>
             <div className="ph-brand-text">
               <div className="ph-title">PFE Book Hub</div>
-              <div className="ph-sub">Bibliothèque des PFE</div>
+              <div className="ph-sub">{t('brandSub')}</div>
             </div>
           </div>
         </div>
@@ -58,7 +90,7 @@ export default function Navbar({ theme, toggleTheme }) {
             <input
               className="ph-search-input"
               type="search"
-              placeholder="Rechercher un sujet, auteur ou mot-clé..."
+              placeholder={t('searchPlaceholder')}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -80,9 +112,31 @@ export default function Navbar({ theme, toggleTheme }) {
               <span className="ph-toggle-knob" aria-hidden></span>
             </button>
 
-            <div className="ph-avatar" title="Profil utilisateur" aria-hidden>
-              AB
+            <div className="ph-lang-wrap" ref={langRef}>
+              <button className="ph-lang-btn" onClick={() => setLangOpen(s => !s)} aria-haspopup="menu" aria-expanded={langOpen} aria-label="Choisir la langue">
+                {lang.toUpperCase()}
+              </button>
+              {langOpen && (
+                <div className="ph-lang-menu" role="menu" aria-label="Langues">
+                  <button className="ph-lang-item" role="menuitem" onClick={() => { changeLanguage('fr'); setLangOpen(false); }}>FR</button>
+                  <button className="ph-lang-item" role="menuitem" onClick={() => { changeLanguage('en'); setLangOpen(false); }}>EN</button>
+                  <button className="ph-lang-item" role="menuitem" onClick={() => { changeLanguage('ar'); setLangOpen(false); }}>AR</button>
+                </div>
+              )}
             </div>
+
+            <button className="ph-avatar" title={t('profile')} aria-label={t('profile')} onClick={toggleProfile} aria-haspopup="menu" aria-expanded={profileOpen}>
+              AB
+            </button>
+
+            {profileOpen && (
+              <div className="ph-profile-menu" ref={profileRef} role="menu" aria-label={t('profile')}>
+                <button className="ph-profile-item" role="menuitem" onClick={() => { closeProfile(); console.log('Mon profil'); }}>{t('profileMenuProfile')}</button>
+                <button className="ph-profile-item" role="menuitem" onClick={() => { closeProfile(); console.log('Paramètres'); }}>{t('profileMenuSettings')}</button>
+                <div className="ph-profile-sep" />
+                <button className="ph-profile-item ph-logout" role="menuitem" onClick={() => { closeProfile(); console.log('Logout'); }}>{t('profileMenuLogout')}</button>
+              </div>
+            )}
           </div>
         </div>
       </div>
