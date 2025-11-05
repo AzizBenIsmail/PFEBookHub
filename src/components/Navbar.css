@@ -1,0 +1,20 @@
+.ph-navbar {
+  width: 100%;
+  background: linear-gradient(90deg, rgba(99,102,241,0.08), rgba(99,102,241,0.02));
+  color: var(--nav-fg);
+  box-shadow: 0 4px 18px rgba(2,6,23,0.06);
+  backdrop-filter: blur(4px);
+}
+.ph-nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.ph-brand { font-weight:700; font-size:1.05rem; display:flex; align-items:center; gap:0.6rem }
+.ph-brand::before { content:''; width:34px; height:34px; background:linear-gradient(135deg,#6366f1,#06b6d4); border-radius:8px; display:inline-block }
+.ph-actions { display:flex; gap:0.5rem; align-items:center; }
+.ph-theme-toggle { background:transparent; border:1px solid transparent; cursor:pointer; font-size:1.1rem; padding:0.35rem 0.6rem; border-radius:10px; }
+.ph-theme-toggle:hover { background: rgba(0,0,0,0.04); }
