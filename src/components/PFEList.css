@@ -1,6 +1,7 @@
+/* PFEList component styles - cleaned and improved */
 .pfe-container {
-  padding: 2.25rem 1rem;
-  max-width: 1200px;
+  padding: 2rem 1rem;
+  max-width: 1240px;
   margin: 0 auto;
   animation: fadeIn 0.45s ease-out;
 }
@@ -16,17 +17,11 @@
 
 .pfe-loading, .pfe-empty, .pfe-error { padding: 1rem; background: var(--card-bg); border: 1px solid var(--muted-border); border-radius: 10px; margin-bottom: 1rem; color: var(--fg); box-shadow: var(--shadow-sm); }
 
-.pfe-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.25rem;
-}
-
 .pfe-controls { 
   display: flex;
   gap: 0.75rem;
   align-items: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   background: transparent;
   padding: 0;
   border-radius: 8px;
@@ -37,7 +32,7 @@
   padding: 0.6rem 0.9rem;
   border-radius: 10px;
   border: 1px solid var(--muted-border);
-  background: rgba(0,0,0,0.02);
+  background: rgba(0,0,0,0.03);
   color: var(--fg);
   min-width: 220px;
   font-size: 0.98rem;
@@ -54,7 +49,6 @@
 .pfe-sort {
   padding: 0.55rem 0.9rem;
   border-radius: 10px;
-  border: 1px solid var(--muted-border);
   background: transparent;
   color: var(--fg);
   cursor: pointer;
@@ -68,7 +62,16 @@
   background: var(--accent);
   color: white;
 }
-.pfe-meta { display:flex; justify-content:space-between; align-items:center; gap:1rem; color:var(--muted); margin-bottom:0.5rem }
+
+.pfe-meta { display:flex; justify-content:space-between; align-items:center; gap:1rem; color:var(--muted); margin-bottom:0.6rem }
+.pfe-count { font-weight:700; color:var(--fg); font-size:0.95rem; }
+.pfe-meta .pfe-filtered { color:var(--muted); font-size:0.9rem }
+
+.pfe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
 
 .pfe-card {
   background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent), var(--card-bg);
@@ -77,24 +80,39 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 1.15rem;
+  padding: 1.25rem;
   color: var(--fg);
-  transition: transform 220ms ease, box-shadow 220ms ease, border-color 180ms ease;
-  border: 1px solid transparent;
-  min-height: 120px;
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 180ms ease, background 220ms ease;
+  border: 1px solid rgba(255,255,255,0.02);
+  min-height: 140px;
 }
 
 .pfe-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-lg);
   border-color: rgba(59,130,246,0.14);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)), var(--card-bg);
 }
 
-.pfe-icon { width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center; color:var(--btn-fg); background: linear-gradient(135deg,var(--gradient-start),var(--gradient-end)); border-radius:8px; box-shadow: 0 6px 18px rgba(99,102,241,0.06); }
+/* Make cards keyboard-focusable when used as buttons */
+.pfe-card[role="button"] {
+  cursor: pointer;
+}
+.pfe-card[role="button"]:focus {
+  outline: 3px solid rgba(59,130,246,0.12);
+  box-shadow: 0 20px 40px rgba(2,6,23,0.12);
+  transform: translateY(-6px);
+}
 
-.pfe-card-title { font-weight: 700; margin-bottom: 0.25rem; font-size:1rem }
-.pfe-card-meta { font-size: 0.85rem; color: var(--muted); word-break: break-all; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
-.pfe-card-actions { display:flex; gap:0.5rem; margin-top:0.75rem; }
+.pfe-card-body { display:flex; gap:0.75rem; align-items:center }
+
+.pfe-icon { width:56px; height:56px; display:inline-flex; align-items:center; justify-content:center; color:var(--btn-fg); background: linear-gradient(135deg,var(--gradient-start),var(--gradient-end)); border-radius:10px; box-shadow: 0 8px 24px rgba(99,102,241,0.06); flex:0 0 auto }
+
+.pfe-card-title { font-weight: 700; margin-bottom: 0.25rem; font-size:1rem; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+.pfe-card-meta { font-size: 0.86rem; color: var(--muted); word-break: break-word; max-width: 100%; display:block; margin-top:2px }
+
+.pfe-card-actions { display:flex; gap:0.6rem; margin-top:0.75rem; align-items:center }
+
 .pfe-btn {
   padding: 0.55rem 1rem;
   border-radius: 9px;
@@ -114,7 +132,7 @@
 .pfe-btn.open {
   background: linear-gradient(90deg,var(--accent),var(--accent-light));
   color: white;
-  box-shadow: 0 8px 20px rgba(59,130,246,0.12);
+  box-shadow: 0 10px 26px rgba(59,130,246,0.12);
 }
 
 .pfe-btn.open:hover {
@@ -126,7 +144,7 @@
 .pfe-btn.download {
   background: transparent;
   color: var(--fg);
-  border: 1px solid var(--muted-border);
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
 .pfe-btn.download:hover {
@@ -140,10 +158,14 @@
 
 .pfe-footer { margin-top: 1.5rem; color: var(--muted); font-size: 0.9rem; }
 
+/* improved empty / error block visuals */
+.pfe-empty, .pfe-error { display:flex; flex-direction:column; gap:0.5rem; align-items:flex-start }
+.pfe-empty code { background: rgba(0,0,0,0.04); padding: 0.15rem 0.35rem; border-radius:4px; }
+
 /* Tailwind-friendly utility fallbacks: the component uses Tailwind class names but these rules ensure minimal styling if Tailwind isn't present */
 .pfe-title, .pfe-sub, .pfe-card, .pfe-btn { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
 
-/* Modal styles */
+/* Modal styles (kept from original) */
 .pfe-modal {
   position: fixed;
   inset: 0;
