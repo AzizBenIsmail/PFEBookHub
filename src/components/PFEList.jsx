@@ -221,8 +221,8 @@ export default function PFEList() {
       )}
 
       <div className="pfe-meta">
-        <div>{t('filesCount', { count: files.length })}</div>
-        {query && <div>{t('filteredBy', { query })}</div>}
+        <div className="pfe-count">{t('filesCount', { count: files.length })}</div>
+        {query && <div className="pfe-filtered">{t('filteredBy', { query })}</div>}
       </div>
 
       <div className="pfe-grid">
