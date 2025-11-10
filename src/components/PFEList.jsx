@@ -92,6 +92,8 @@ export default function PFEList() {
   const [modalFallback, setModalFallback] = useState(false);
   const [query, setQuery] = useState('');
   const [sortAsc, setSortAsc] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const thumbnailCacheRef = useRef(new Map());
 
   const openInModal = useCallback((url, title) => {
     // Detect mobile / touch-like devices or narrow screens where iframe PDF often fails
@@ -189,6 +191,107 @@ export default function PFEList() {
     return filename.replace(/\.pdf$/i, '').replace(/[-_]+/g, ' ');
   }
 
+  /* Thumbnail component: renders first page of a PDF to a data URL using PDF.js (loaded from CDN).
+     Caches results in memory for the session. If a manifest provides a `thumbnail` property, that will
+     be used by the card directly and the generator skipped. */
+  function Thumbnail({ url, alt, width = 64, height = 64 }) {
+    const [src, setSrc] = useState(null);
+    const [loadingThumb, setLoadingThumb] = useState(false);
+
+    useEffect(() => {
+      let cancelled = false;
+      if (!url) return;
+      const cached = thumbnailCacheRef.current.get(url);
+      if (cached) {
+        setSrc(cached);
+        return;
+      }
+
+      async function ensurePdfJs() {
+        if (window.pdfjsLib) return window.pdfjsLib;
+        // load pdfjs from unpkg CDN
+        return new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = 'https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.min.js';
+          s.onload = () => resolve(window.pdfjsLib);
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      }
+
+      async function renderThumb() {
+        setLoadingThumb(true);
+  // reset
+        try {
+          const pdfjs = await ensurePdfJs();
+          // set worker
+          try {
+            pdfjs.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js';
+          } catch (e) {}
+
+          // fetch PDF as arrayBuffer
+          const resp = await fetch(url, { cache: 'no-cache' });
+          if (!resp.ok) throw new Error('fetch failed');
+          const buffer = await resp.arrayBuffer();
+          const loadingTask = pdfjs.getDocument({ data: buffer });
+          const pdf = await loadingTask.promise;
+          const page = await pdf.getPage(1);
+          const viewport = page.getViewport({ scale: 1 });
+          const scale = Math.min(width / viewport.width, height / viewport.height, 1);
+          const scaled = page.getViewport({ scale });
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(scaled.width);
+          canvas.height = Math.round(scaled.height);
+          const ctx = canvas.getContext('2d');
+          const renderContext = { canvasContext: ctx, viewport: scaled };
+          await page.render(renderContext).promise;
+          const dataUrl = canvas.toDataURL('image/png');
+          thumbnailCacheRef.current.set(url, dataUrl);
+          if (!cancelled) setSrc(dataUrl);
+        } catch (e) {
+          // failure -> leave fallback
+        } finally {
+          if (!cancelled) setLoadingThumb(false);
+        }
+      }
+
+      renderThumb();
+
+      return () => { cancelled = true; };
+    }, [url, width, height]);
+
+    if (src) return <img className="pfe-thumb" src={src} alt={alt} width={width} height={height} />;
+    if (loadingThumb) return <div className="pfe-thumb pfe-thumb-loading" aria-hidden />;
+    return <div className="pfe-thumb pfe-thumb-fallback" aria-hidden />;
+  }
+
+  // copy the manifest generation command to clipboard (helpful when no files are found)
+  const copyCommand = useCallback(() => {
+    const cmd = 'npm run generate:pfe-manifest';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(cmd).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1800);
+      }).catch(() => {
+        alert(`Veuillez copier manuellement : ${cmd}`);
+      });
+    } else {
+      try {
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = cmd;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1800);
+      } catch (e) {
+        alert(`Veuillez copier manuellement : ${cmd}`);
+      }
+    }
+  }, []);
+
   return (
     <div className="pfe-container">
       <div className="pfe-header">
@@ -217,7 +320,30 @@ export default function PFEList() {
       )}
 
       {!loading && files && files.length === 0 && !error && (
-        <div className="pfe-empty" role="status" aria-live="polite">{t('noFiles', { path: '/public/PFE' })}</div>
+        <div className="pfe-empty" role="status" aria-live="polite">
+          <div className="pfe-empty-illustration" aria-hidden>
+            {/* simple inline SVG illustration */}
+            <svg width="160" height="120" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="18" width="120" height="84" rx="8" fill="#f8fafc" stroke="#e6edf8" />
+              <path d="M10 28h100" stroke="#e2e8f0" strokeWidth="2" strokeLinecap="round" />
+              <path d="M10 46h80" stroke="#e2e8f0" strokeWidth="2" strokeLinecap="round" />
+              <path d="M10 64h60" stroke="#e2e8f0" strokeWidth="2" strokeLinecap="round" />
+              <path d="M84 0v22l22 22V22h18v60H84V0z" fill="#e6f0ff" opacity="0.9" />
+            </svg>
+          </div>
+          <p style={{marginTop:8, marginBottom:8}}>{t('noFiles', { path: '/public/PFE' })}</p>
+          <div style={{display:'flex', gap:8, marginTop:6}}>
+            <button className="pfe-btn open" onClick={copyCommand} aria-label="Copier commande">
+              {/* copy icon */}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <path d="M16 1H4a2 2 0 0 0-2 2v12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                <rect x="8" y="5" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span style={{marginLeft:8}}>{copied ? 'Copié ✓' : 'Copier la commande'}</span>
+            </button>
+            <a className="pfe-btn download" href="/PFE/files.json" target="_blank" rel="noopener noreferrer" aria-label="Voir files.json">Voir files.json</a>
+          </div>
+        </div>
       )}
 
       <div className="pfe-meta">
@@ -248,8 +374,12 @@ export default function PFEList() {
             }}>
               <div className="pfe-card-body">
                 <div style={{display:'flex', gap:'0.75rem', alignItems:'center'}}>
-                  <div className="pfe-icon" aria-hidden>
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h7l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M13 2v6a1 1 0 0 0 1 1h6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <div aria-hidden>
+                    {f.thumbnail ? (
+                      <img className="pfe-thumb" src={f.thumbnail} alt={title} width={64} height={64} />
+                    ) : (
+                      <Thumbnail url={url} alt={title} width={64} height={64} />
+                    )}
                   </div>
                   <div>
                     <div className="pfe-card-title">{title}</div>
@@ -259,10 +389,19 @@ export default function PFEList() {
               </div>
               <div className="pfe-card-actions">
                 <button className="pfe-btn open" onClick={() => openInModal(url, title)} aria-label={`${t('open')} ${title}`}>
-                  {t('open')}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                    <path d="M8 17l8-10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M16 17H8v-8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span style={{marginLeft:8}}>{t('open')}</span>
                 </button>
                 <a className="pfe-btn download" href={url} download target="_blank" rel="noopener noreferrer" aria-label={`${t('download')} ${title}`}>
-                  {t('download')}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M12 15V3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span style={{marginLeft:8}}>{t('download')}</span>
                 </a>
               </div>
             </div>

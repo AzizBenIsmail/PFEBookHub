@@ -148,6 +148,10 @@
 
 .pfe-icon svg { width:32px; height:32px }
 
+/* Thumbnail image for PDF preview */
+.pfe-thumb { width:64px; height:64px; object-fit:cover; border-radius:10px; box-shadow: 0 8px 20px rgba(2,6,23,0.06); flex:0 0 auto; display:block }
+.pfe-thumb-loading, .pfe-thumb-fallback { width:64px; height:64px; border-radius:10px; background: linear-gradient(180deg,#f3f4f6,#ffffff); box-shadow: 0 6px 18px rgba(2,6,23,0.04); flex:0 0 auto }
+
 .pfe-card-title { font-weight: 700; margin-bottom: 0.35rem; font-size:1.08rem; line-height:1.4; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; letter-spacing:-0.3px }
 
 .pfe-card-meta { font-size: 0.84rem; color: var(--muted); word-break: break-word; max-width: 100%; display:block; margin-top:6px; font-weight:500 }
@@ -220,6 +224,12 @@
 /* improved empty / error block visuals */
 .pfe-empty, .pfe-error { display:flex; flex-direction:column; gap:0.5rem; align-items:flex-start }
 .pfe-empty code { background: rgba(0,0,0,0.04); padding: 0.15rem 0.35rem; border-radius:4px; }
+
+/* Empty state illustration and helpers */
+.pfe-empty { display:flex; flex-direction:column; gap:0.65rem; align-items:center; justify-content:center; padding:1.25rem; border-radius:12px }
+.pfe-empty-illustration { display:flex; align-items:center; justify-content:center; width:160px; height:120px }
+.pfe-empty .pfe-btn { padding: 0.56rem 0.9rem }
+.pfe-empty a.pfe-btn.download { background: transparent; border: 1px solid rgba(59,130,246,0.08); color: var(--accent) }
 
 /* Tailwind-friendly utility fallbacks: the component uses Tailwind class names but these rules ensure minimal styling if Tailwind isn't present */
 .pfe-title, .pfe-sub, .pfe-card, .pfe-btn { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
