@@ -204,10 +204,10 @@ export default function PFEList() {
         </div>
       </div>
 
-  {loading && <div className="pfe-loading" role="status" aria-live="polite">{t('loading')}</div>}
+  {loading && <div className="pfe-loading">{t('loading')}</div>}
 
       {error && (
-        <div className="pfe-error" role="alert" aria-live="assertive">
+        <div className="pfe-error">
           <p>{error}</p>
           <p>
             {t('manifestHint')}
@@ -217,7 +217,7 @@ export default function PFEList() {
       )}
 
       {!loading && files && files.length === 0 && !error && (
-        <div className="pfe-empty" role="status" aria-live="polite">{t('noFiles', { path: '/public/PFE' })}</div>
+        <div className="pfe-empty">{t('noFiles', { path: '/public/PFE' })}</div>
       )}
 
       <div className="pfe-meta">
@@ -241,11 +241,8 @@ export default function PFEList() {
         }, [files, query, sortAsc]).map((f, idx) => {
           const title = f.title || filenameToTitle(f.name || (f.url || '').split('/').pop());
           const url = f.url || `/PFE/${encodeURIComponent(f.name)}`;
-          const stableKey = f.url || f.name || idx;
           return (
-            <div key={stableKey} className="pfe-card" role="button" tabIndex={0} title={title} onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openInModal(url, title); }
-            }}>
+            <div key={idx} className="pfe-card">
               <div className="pfe-card-body">
                 <div style={{display:'flex', gap:'0.75rem', alignItems:'center'}}>
                   <div className="pfe-icon" aria-hidden>
