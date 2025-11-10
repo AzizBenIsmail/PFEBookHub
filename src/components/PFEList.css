@@ -92,6 +92,18 @@
 
 .pfe-icon { width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center; color:var(--btn-fg); background: linear-gradient(135deg,var(--gradient-start),var(--gradient-end)); border-radius:8px; box-shadow: 0 6px 18px rgba(99,102,241,0.06); }
 
+/* Miniature : affiche la page 1 du PDF en iframe compacte */
+.pfe-thumb {
+  width: 96px;
+  height: 128px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(0,0,0,0.02), transparent);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+  flex: 0 0 auto;
+}
+.pfe-thumb iframe { width: 100%; height: 100%; border: 0; display: block; }
+
 .pfe-card-title { font-weight: 700; margin-bottom: 0.25rem; font-size:1rem }
 .pfe-card-meta { font-size: 0.85rem; color: var(--muted); word-break: break-all; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .pfe-card-actions { display:flex; gap:0.5rem; margin-top:0.75rem; }

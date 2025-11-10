@@ -245,8 +245,15 @@ export default function PFEList() {
             <div key={idx} className="pfe-card">
               <div className="pfe-card-body">
                 <div style={{display:'flex', gap:'0.75rem', alignItems:'center'}}>
-                  <div className="pfe-icon" aria-hidden>
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h7l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M13 2v6a1 1 0 0 0 1 1h6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <div className="pfe-thumb" aria-hidden>
+                    {/* Affiche la première page du PDF dans une iframe compacte pour servir de vignette */}
+                    <iframe
+                      title={"thumb-" + title}
+                      src={url + "#page=1"}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      sandbox="allow-same-origin allow-scripts allow-forms"
+                    />
                   </div>
                   <div>
                     <div className="pfe-card-title">{title}</div>
