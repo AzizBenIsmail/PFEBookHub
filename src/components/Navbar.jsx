@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Weather from './Weather';
 import './Navbar.css';
 import { useTranslation } from 'react-i18next';
 
@@ -100,6 +101,10 @@ export default function Navbar({ theme, toggleTheme }) {
           <div className="ph-datetime">
             <div className="ph-date">{formatDate(dateTime)}</div>
             <div className="ph-time">{formatTime(dateTime)}</div>
+          </div>
+
+          <div className="ph-weather-wrap">
+            <Weather />
           </div>
 
           <div className="ph-actions">
