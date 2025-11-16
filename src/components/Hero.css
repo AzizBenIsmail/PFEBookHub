@@ -1,0 +1,71 @@
+.ph-hero {
+  width: 100%;
+  padding: 56px 16px 40px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(2,6,23,0.65), transparent);
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ph-hero-inner {
+  max-width: 1100px;
+  width: 100%;
+  text-align: center;
+  padding: 40px 12px 28px;
+}
+.ph-hero-title {
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 1.03;
+  margin: 0 0 12px;
+  font-weight: 800;
+  color: var(--fg);
+}
+.ph-hero-accent {
+  display: inline-block;
+  background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding: 0 8px;
+  margin-left: 6px;
+}
+.ph-hero-year {
+  display: inline-block;
+  background: #000;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-weight: 800;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.ph-hero-sub {
+  margin: 12px auto 22px;
+  max-width: 720px;
+  color: var(--muted);
+  font-size: 1rem;
+}
+.ph-hero-actions { margin-bottom: 18px }
+.ph-hero-cta {
+  background: linear-gradient(90deg, var(--accent), var(--gradient-end));
+  color: var(--btn-fg);
+  border: 0;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+}
+.ph-hero-badges {
+  margin-top: 18px;
+  display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
+}
+.ph-badge { width:48px; height:48px; border-radius:999px; background: var(--card-bg); display:inline-flex; align-items:center; justify-content:center; box-shadow: var(--shadow-sm); border: 1px solid var(--muted-border) }
+.ph-badge-dot { width:14px; height:14px; border-radius:50%; background: linear-gradient(135deg,var(--gradient-start),var(--gradient-end)); box-shadow:0 4px 10px rgba(6,182,212,0.08) }
+
+@media (max-width: 720px) {
+  .ph-hero { padding: 36px 12px 28px }
+  .ph-hero-title { font-size: clamp(1.5rem, 6vw, 2.2rem) }
+  .ph-badge { width:40px; height:40px }
+}

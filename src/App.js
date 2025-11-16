@@ -2,6 +2,7 @@ import './App.css';
 import PFEList from './components/PFEList';
 import Navbar from './components/Navbar';
 import Profile from './components/Profile';
+import Hero from './components/Hero';
 import { useEffect, useState, useCallback } from 'react';
 
 function App() {
@@ -57,6 +58,7 @@ function App() {
   return (
     <div className="App" style={{ minHeight: '100vh' }}>
       <Navbar theme={theme} toggleTheme={toggleTheme} />
+      <Hero />
       <Profile />
       <main>
         <PFEList />
