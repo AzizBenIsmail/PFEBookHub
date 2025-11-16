@@ -5,6 +5,11 @@
   animation: fadeIn 0.45s ease-out;
 }
 
+/* Ensure predictable box sizing and prevent unexpected overflow on mobile */
+:root, :root * {
+  box-sizing: border-box;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -140,6 +145,20 @@
   color: var(--accent);
   opacity: 0.6;
 }
+
+.pfe-thumbnail-fallback-touch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.pfe-thumb-actions { display:flex; gap:0.6rem; width:100%; justify-content:center; }
+.pfe-thumb-actions .pfe-btn { flex: initial; min-width: 100px; }
 
 .pfe-card-content {
   display: flex;
@@ -400,6 +419,21 @@
   .pfe-search { flex:1 1 auto; min-width:0; }
 }
 
+/* Mobile-specific tweaks to avoid wide thumbnails and overflow */
+@media (max-width: 720px) {
+  .pfe-card-enhanced { grid-template-rows: 140px 1fr; }
+  .pfe-card-thumbnail { min-height: 120px; }
+  .pfe-thumbnail-pdf { height: 100%; width: 100%; display:block; }
+  .pfe-card { padding: 0; }
+  .pfe-card-content { padding: 0.9rem; }
+  .pfe-card-title-large { font-size: 1rem }
+}
+
+@media (max-width: 420px) {
+  .pfe-card-enhanced { grid-template-rows: 120px 1fr; }
+  .pfe-thumbnail-fallback-touch .pfe-btn { padding: 0.5rem 0.8rem; font-size: 0.9rem }
+}
+
 @media (max-width: 720px) {
   .pfe-controls { flex-direction: column; align-items: stretch; gap: 0.6rem }
   .pfe-controls .pfe-search { order: 1; width:100%; }
@@ -432,4 +466,96 @@
 
 .pfe-modal-fallback { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:1.25rem; text-align:center }
 .pfe-modal-fallback p { margin:0; color:var(--muted) }
+
+/* PDF preview lazy-load + placeholder + touch overlay */
+.pfe-pdf-wrap {
+  width: 100%;
+  height: 220px;
+  max-height: 320px;
+  min-height: 140px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #fbfcfd 0%, #f6f8fa 100%);
+}
+
+.pfe-thumbnail-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  gap: 8px;
+}
+
+.pfe-loading-text { font-size: 0.92rem; color: #6b7280 }
+
+.pfe-thumb-actions-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 8px;
+  z-index: 6;
+}
+
+.pfe-pdf-wrap .pfe-thumbnail-pdf { width: 100%; height: 100%; border: 0; display: block }
+
+/* Mobile pagination fixes */
+@media (max-width: 720px) {
+  .pfe-pagination-controls {
+    gap: 0.8rem;
+    padding: 1rem 1.2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .pfe-pagination-btn {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    flex: 0 1 auto;
+  }
+  
+  .pfe-pagination-info {
+    min-width: 120px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .pfe-pagination {
+    margin: 2rem 0 1.5rem;
+  }
+  
+  .pfe-pagination-controls {
+    width: 100%;
+    gap: 0.6rem;
+    padding: 1rem 0.8rem;
+    flex-direction: column;
+    border-radius: 12px;
+  }
+  
+  .pfe-pagination-btn {
+    width: 100%;
+    padding: 0.65rem 1rem;
+    font-size: 0.8rem;
+    flex: 1 0 auto;
+  }
+  
+  .pfe-pagination-info {
+    order: 1;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .pfe-pagination-btn:first-of-type {
+    order: 2;
+  }
+  
+  .pfe-pagination-btn:last-of-type {
+    order: 3;
+  }
+}
 

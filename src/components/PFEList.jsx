@@ -94,6 +94,54 @@ export default function PFEList() {
   const [sortAsc, setSortAsc] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  // Lazy PDF preview component: loads the PDF only when visible (reduces mobile load)
+  function PdfPreview({ url, title }) {
+    const ref = useRef(null);
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+      const el = ref.current;
+      if (!el) return;
+      if (visible) return;
+      let obs;
+      try {
+        obs = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting || entry.intersectionRatio > 0) {
+              setVisible(true);
+              obs.disconnect();
+            }
+          });
+        }, { rootMargin: '200px', threshold: 0.05 });
+        obs.observe(el);
+      } catch (e) {
+        // fallback: mark visible
+        setVisible(true);
+      }
+      return () => { try { obs && obs.disconnect(); } catch (e) {} };
+    }, [visible]);
+
+    return (
+      <div ref={ref} className="pfe-pdf-wrap" aria-hidden={!visible}>
+        {visible ? (
+          <object data={url} type="application/pdf" className="pfe-thumbnail-pdf" aria-label={title}>
+            <div className="pfe-thumbnail-fallback">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h7l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+          </object>
+        ) : (
+          <div className="pfe-thumbnail-placeholder">
+            <div className="pfe-thumbnail-fallback">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h7l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+            <div className="pfe-loading-text">{t('loading')}</div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   const openInModal = useCallback((url, title) => {
     // Detect mobile / touch-like devices or narrow screens where iframe PDF often fails
@@ -186,6 +234,20 @@ export default function PFEList() {
     return () => document.removeEventListener('keydown', onKey);
   }, [modalUrl, closeModal]);
 
+  // detect touch / mobile devices for rendering fallbacks
+  useEffect(() => {
+    try {
+      const isTouch = typeof window !== 'undefined' && (
+        window.innerWidth <= 720 ||
+        (navigator.userAgent && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) ||
+        (window.matchMedia && window.matchMedia('(pointer:coarse)').matches)
+      );
+      setIsTouchDevice(Boolean(isTouch));
+    } catch (e) {
+      setIsTouchDevice(false);
+    }
+  }, []);
+
   function filenameToTitle(filename) {
     // Simple title conversion: remove extension and replace dashes/underscores
     return filename.replace(/\.pdf$/i, '').replace(/[-_]+/g, ' ');
@@ -259,15 +321,17 @@ export default function PFEList() {
           return (
             <div key={idx} className="pfe-card pfe-card-enhanced">
               <div className="pfe-card-thumbnail">
-                <object 
-                  data={url} 
-                  type="application/pdf"
-                  className="pfe-thumbnail-pdf"
-                >
-                  <div className="pfe-thumbnail-fallback">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h7l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <PdfPreview url={url} title={title} />
+                {isTouchDevice && (
+                  <div className="pfe-thumb-actions-overlay">
+                    <a className="pfe-btn open" href={url} target="_blank" rel="noopener noreferrer" onClick={(e)=>e.stopPropagation()}>
+                      {t('open')}
+                    </a>
+                    <a className="pfe-btn download" href={url} download onClick={(e)=>e.stopPropagation()}>
+                      {t('download')}
+                    </a>
                   </div>
-                </object>
+                )}
               </div>
               <div className="pfe-card-content">
                 <div className="pfe-card-header">
