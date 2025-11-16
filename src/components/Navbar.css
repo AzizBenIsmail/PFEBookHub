@@ -1,12 +1,15 @@
 .ph-navbar {
   width: 100%;
+  /* expose a CSS variable so other sections (hero) can avoid overlap */
+  --navbar-height: 64px;
+  height: var(--navbar-height);
   /* Use theme-aware accent variables for the subtle border/gradient */
   background: linear-gradient(to right, var(--nav-bg), var(--nav-bg)) padding-box,
               linear-gradient(90deg, var(--nav-accent-start), var(--nav-accent-end)) border-box;
   color: var(--nav-fg);
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(6px);
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid var(--muted-border, rgba(0,0,0,0.06));
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -15,9 +18,10 @@
 .ph-nav-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0.5rem 1rem;
+  padding: 0 1rem;
   display:flex;
   align-items:center;
+  height: 100%;
   justify-content:space-between;
   gap: 1rem;
 }
