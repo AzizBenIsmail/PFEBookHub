@@ -3,7 +3,7 @@ import './Hero.css';
 
 export default function Hero() {
   return (
-    <section className="ph-hero" role="region" aria-label="Présentation">
+    <section className="ph-hero" aria-label="Présentation">
       <div className="ph-hero-inner">
         <h1 className="ph-hero-title">
           Un seul endroit pour tous les
