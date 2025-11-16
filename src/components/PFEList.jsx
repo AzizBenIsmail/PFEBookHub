@@ -92,6 +92,8 @@ export default function PFEList() {
   const [modalFallback, setModalFallback] = useState(false);
   const [query, setQuery] = useState('');
   const [sortAsc, setSortAsc] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   const openInModal = useCallback((url, title) => {
     // Detect mobile / touch-like devices or narrow screens where iframe PDF often fails
@@ -233,38 +235,101 @@ export default function PFEList() {
             const bn = (b.name || b.url || '').toString().toLowerCase();
             return sortAsc ? an.localeCompare(bn) : bn.localeCompare(an);
           });
-          return list.filter((f) => {
+          const filtered = list.filter((f) => {
             if (!query) return true;
             const t = (f.title || f.name || f.url || '').toString().toLowerCase();
             return t.includes(query.toLowerCase());
           });
-        }, [files, query, sortAsc]).map((f, idx) => {
+
+          // Pagination logic
+          const totalPages = Math.ceil(filtered.length / itemsPerPage);
+          // Reset to page 1 if current page exceeds total pages
+          if (currentPage > totalPages && totalPages > 0) {
+            setCurrentPage(1);
+          }
+          
+          const startIdx = (currentPage - 1) * itemsPerPage;
+          const endIdx = startIdx + itemsPerPage;
+          const paginatedItems = filtered.slice(startIdx, endIdx);
+
+          return paginatedItems;
+        }, [files, query, sortAsc, currentPage, itemsPerPage]).map((f, idx) => {
           const title = f.title || filenameToTitle(f.name || (f.url || '').split('/').pop());
           const url = f.url || `/PFE/${encodeURIComponent(f.name)}`;
           return (
-            <div key={idx} className="pfe-card">
-              <div className="pfe-card-body">
-                <div style={{display:'flex', gap:'0.75rem', alignItems:'center'}}>
-                  <div className="pfe-icon" aria-hidden>
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h7l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M13 2v6a1 1 0 0 0 1 1h6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <div key={idx} className="pfe-card pfe-card-enhanced">
+              <div className="pfe-card-thumbnail">
+                <object 
+                  data={url} 
+                  type="application/pdf"
+                  className="pfe-thumbnail-pdf"
+                >
+                  <div className="pfe-thumbnail-fallback">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h7l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </div>
-                  <div>
-                    <div className="pfe-card-title">{title}</div>
-                    <div className="pfe-card-meta">{(f.name || url.split('/').pop())}</div>
-                  </div>
-                </div>
+                </object>
               </div>
-              <div className="pfe-card-actions">
-                <button className="pfe-btn open" onClick={() => openInModal(url, title)} aria-label={`${t('open')} ${title}`}>
-                  {t('open')}
-                </button>
-                <a className="pfe-btn download" href={url} download target="_blank" rel="noopener noreferrer" aria-label={`${t('download')} ${title}`}>
-                  {t('download')}
-                </a>
+              <div className="pfe-card-content">
+                <div className="pfe-card-header">
+                  <div className="pfe-card-title-large">{title}</div>
+                  <div className="pfe-card-meta-small">{(f.name || url.split('/').pop())}</div>
+                </div>
+                <div className="pfe-card-footer">
+                  <button className="pfe-btn open" onClick={() => openInModal(url, title)} aria-label={`${t('open')} ${title}`}>
+                    📖 {t('open')}
+                  </button>
+                  <a className="pfe-btn download" href={url} download target="_blank" rel="noopener noreferrer" aria-label={`${t('download')} ${title}`}>
+                    ⬇️ {t('download')}
+                  </a>
+                </div>
               </div>
             </div>
           );
         })}
+      </div>
+
+      <div className="pfe-pagination">
+        {useMemo(() => {
+          const list = (files || []).slice();
+          list.sort((a,b) => {
+            const an = (a.name || a.url || '').toString().toLowerCase();
+            const bn = (b.name || b.url || '').toString().toLowerCase();
+            return sortAsc ? an.localeCompare(bn) : bn.localeCompare(an);
+          });
+          const filtered = list.filter((f) => {
+            if (!query) return true;
+            const t = (f.title || f.name || f.url || '').toString().toLowerCase();
+            return t.includes(query.toLowerCase());
+          });
+
+          const totalPages = Math.ceil(filtered.length / itemsPerPage);
+          
+          if (totalPages <= 1) return null;
+
+          return (
+            <div className="pfe-pagination-controls">
+              <button 
+                className="pfe-pagination-btn" 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                ← Précédent
+              </button>
+              
+              <div className="pfe-pagination-info">
+                Page {currentPage} sur {totalPages}
+              </div>
+              
+              <button 
+                className="pfe-pagination-btn" 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Suivant →
+              </button>
+            </div>
+          );
+        }, [files, query, sortAsc, currentPage, itemsPerPage])}
       </div>
 
       <div className="pfe-footer">
