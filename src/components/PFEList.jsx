@@ -93,7 +93,7 @@ export default function PFEList() {
   const [query, setQuery] = useState('');
   const [sortAsc, setSortAsc] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 12;
 
   const openInModal = useCallback((url, title) => {
     // Detect mobile / touch-like devices or narrow screens where iframe PDF often fails
